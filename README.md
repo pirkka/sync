@@ -99,9 +99,9 @@ Because Sync interpolates your configuration settings into its compiled JavaScri
 
 ## Current caveats
 The current implementation uses a DOM range query (jQuery's `nextUntil`) to match your partial's "element" in
-the DOM. The way this selector works requires your sync'd partial to have only one node at root level.
+the DOM. The way this selector works requires your sync'd partial to have *only one node/element at root level*.
 
-For example, this parent view/sync partial approach (containing two nodes/elements at root level) would *not* work:
+For example, the following approach (containing three nodes/elements at root level) would *not* work.
 
 Given the sync partial `_todo_row.html.erb`:
 
