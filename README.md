@@ -97,28 +97,26 @@ Set your configuration in the generated `config/sync.yml` file, using the Pusher
 
 Because Sync interpolates your configuration settings into its compiled JavaScript, you may need to clear the Rails asset cache before your changes are reflected. You can do so by running `rake assets:clobber` from the command line.
 
-## Current Caveats
+## Current caveats
 The current implementation uses a DOM range query (jQuery's `nextUntil`) to match your partial's "element" in
-the DOM. The way this selector works requires your sync'd partial to be wrapped in a root level html tag for that partial file.
-For example, this parent view/sync partial approach would *not* work:
+the DOM. The way this selector works requires your sync'd partial to have only one node at root level.
+
+For example, this parent view/sync partial approach (containing two nodes/elements at root level) would *not* work:
 
 Given the sync partial `_todo_row.html.erb`:
 
 ```erb
 Title:
 <%= link_to todo.title, todo %>
+<br/>
 ```
 
 And the parent view:
 
 ```erb
-<table>
-  <tbody>
-    <tr>
-      <%= sync partial: 'todo_row', resource: @todo %>
-    </tr>
-  </tbody>
-</table>
+<div class="todo-items>
+  <%= sync partial: 'todo_row', resource: @todo %>
+</div>
 ```
 
 ##### The markup *would need to change to*:
@@ -127,20 +125,19 @@ And the parent view:
 sync partial `_todo_row.html.erb`:
 
 ```erb
-<tr> <!-- root level container for the partial required here -->
+<div class="todo-item"> <!-- root level container for the partial added -->
   Title:
   <%= link_to todo.title, todo %>
-</tr>
+  <!-- <br/> probably we don't need this line break anymore :) -->
+</div>
 ```
 
 And the parent view changed to:
 
 ```erb
-<table>
-  <tbody>
-    <%= sync partial: 'todo_row', resource: @todo %>
-  </tbody>
-</table>
+<div class="todo-items>
+  <%= sync partial: 'todo_row', resource: @todo %>
+</div>
 ```
 
 I'm currently investigating true DOM ranges via the [Range](https://developer.mozilla.org/en-US/docs/DOM/range) object.
