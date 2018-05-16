@@ -1,4 +1,4 @@
-# Sync [![Build Status](https://img.shields.io/travis/chrismccord/sync.svg)](https://travis-ci.org/chrismccord/sync) [![Code climate](https://img.shields.io/codeclimate/github/chrismccord/sync.svg)](https://codeclimate.com/github/chrismccord/sync) [![Code coverage](https://img.shields.io/codeclimate/coverage/github/chrismccord/sync.svg)](https://codeclimate.com/github/chrismccord/sync) [![gem version](https://img.shields.io/gem/v/sync.svg)](http://rubygems.org/gems/sync)
+# RenderSync [![Build Status](https://img.shields.io/travis/chrismccord/sync.svg)](https://travis-ci.org/chrismccord/sync) [![Code climate](https://img.shields.io/codeclimate/github/chrismccord/sync.svg)](https://codeclimate.com/github/chrismccord/sync) [![Code coverage](https://img.shields.io/codeclimate/coverage/github/chrismccord/sync.svg)](https://codeclimate.com/github/chrismccord/sync) [![gem version](https://img.shields.io/gem/v/sync.svg)](http://rubygems.org/gems/sync)
 
 
 > This started as a thought experiment that is growing into a viable option for realtime Rails apps without ditching
@@ -23,7 +23,7 @@ with:
 <%= sync partial: 'user_row', resource: @user %>
 ```
 
-Then update views realtime automatically with the `sync` DSL or with a with a simple `sync_update(@user)` in the controller without any extra javascript or
+Then update views realtime automatically with the `sync` DSL or with a simple `sync_update(@user)` in the controller without any extra javascript or
 configuration.
 
 In addition to real-time updates, Sync also provides:
@@ -39,6 +39,13 @@ In addition to real-time updates, Sync also provides:
   - Rails 3 >= 3.1 or Rails 4
   - jQuery >= 1.9
 
+## Upgrading from 0.4.0
+
+The gem name has changed from `sync` to `render_sync`, so to upgrade you just need to use
+the new name in your Gemfile:
+```
+gem 'render_sync'
+```
 
 ## Installation
 
@@ -49,21 +56,21 @@ In addition to real-time updates, Sync also provides:
 ```ruby
 gem 'faye'
 gem 'thin', require: false
-gem 'sync'
+gem 'render_sync'
 ```
 
 #### Using Pusher
 
 ```ruby
 gem 'pusher'
-gem 'sync'
+gem 'render_sync'
 ```
 
 #### Install
 
 ```bash
 $ bundle
-$ rails g sync:install
+$ rails g render_sync:install
 ```
 
 #### 2) Require sync in your asset javascript manifest `app/assets/javascripts/application.js`:
@@ -72,10 +79,10 @@ $ rails g sync:install
 //= require sync
 ```
 
-#### 3) Add the pubsub adapter's javascript to your application layout `app/views/layouts/application.html.erb`
+#### 3) Add sync's configuration script to your application layout `app/views/layouts/application.html.erb`
 
 ```erb
-<%= javascript_include_tag Sync.adapter_javascript_url %>
+<%= include_sync_config %>
 ```
 
 #### 4) Configure your pubsub server (Faye or Pusher)
@@ -97,7 +104,7 @@ Set your configuration in the generated `config/sync.yml` file, using the Pusher
 
 Because Sync interpolates your configuration settings into its compiled JavaScript, you may need to clear the Rails asset cache before your changes are reflected. You can do so by running `rake assets:clobber` from the command line.
 
-## Current caveats
+## Current Caveats
 The current implementation uses a DOM range query (jQuery's `nextUntil`) to match your partial's "element" in
 the DOM. The way this selector works requires your sync'd partial to have *only one node/element at root level*.
 
@@ -252,7 +259,7 @@ sync_touch :project, :user
 ### Syncing outside of the controller
 
 `Sync::Actions` can be included into any object wishing to perform sync
-publishes for a given resource. Instead of using the the controller as
+publishes for a given resource. Instead of using the controller as
 context for rendering, a Sync::Renderer instance is used. Since the Renderer
 is not part of the request/response/session, it has no knowledge of the
 current session (ie. current_user), so syncing from outside the controller
@@ -515,3 +522,8 @@ def UsersController < ApplicationController
 end
 ```
 
+## Google detecting not found errors
+
+If you're using [Google Webmaster Tools](https://www.google.com/webmasters/) you may notice that Google detects *lots* of URLs it can't find on your site when using Sync.
+This is because Google now attempts to discover URLs in JavaScript and some JavaScript we generate looks a little like a URL to Google.
+You can [safely ignore](https://support.google.com/webmasters/answer/2409439?ctx=MCE&ctx=NF) this problem.
